@@ -11,6 +11,7 @@ import android.provider.BaseColumns;
 import android.provider.ContactsContract;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.internal.telephony.ITelephony;
 
@@ -63,7 +64,9 @@ public class IncomingCallReceiver extends BroadcastReceiver {
                             Log.d("SCB", "Ringing");
                         } else {
                             telephonyService.endCall();
-                            Log.d("SCB", "Ending the call");
+                            Log.d("SCB", "Contact not found. Call Blocked.");
+                            Toast.makeText(context, "Contact not found. Call Blocked.", Toast.LENGTH_SHORT).show();
+
                         }
 
                     } catch (Exception e) {
