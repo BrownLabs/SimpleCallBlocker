@@ -3,7 +3,9 @@ package com.brownlabs.simplecallblocker;
 import android.Manifest;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -12,48 +14,78 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_READ_PHONE_STATE = 1;
+
+    private static MainActivity mainActivityRunningInstance;
+    public static MainActivity  getInstace(){
+        return mainActivityRunningInstance;
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        TextView tv = findViewById(R.id.textBlockedInfo);
+        int blockedCount = getIntPref("blockedCount");
+        String blockedSinceDate = getStringPref("BlockedSinceDate");
+        tv.setText(blockedCount +" calls blocked since "+blockedSinceDate);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mainActivityRunningInstance=this;
         setContentView(R.layout.activity_main);
+
+        TextView tv1 = findViewById(R.id.textView2);
+        tv1.setMovementMethod(new ScrollingMovementMethod());
 
         Log.d("SCB","Started the app");
 
-        boolean enabled = getBool("enabled");
+        String blockedSinceDate = getStringPref("BlockedSinceDate");
+        if (blockedSinceDate == null || blockedSinceDate.trim().length()==0) {
+            SimpleDateFormat sdf = new SimpleDateFormat("M/d/yyyy");
+            Calendar cal = Calendar.getInstance();
+            saveStringPref("BlockedSinceDate", sdf.format(cal.getTime()));
+        }
+
+        boolean enabled = getBoolPref("enabled");
 
         Button button = findViewById(R.id.buttonEnable);
         TextView textView = findViewById(R.id.textCurrent);
 
         if (enabled) {
-            button.setText("Allow All Calls");
+            button.setText("Tap to Allow All Calls");
             textView.setText("Call blocking is currently enabled");
         } else {
-            button.setText("Enable Call Blocking");
+            button.setText("Tap to Enable Call Blocking");
             textView.setText("Call blocking is currently disabled");
         }
 
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                boolean e = getBool("enabled");
+                boolean e = getBoolPref("enabled");
 
                 Button b = findViewById(R.id.buttonEnable);
                 TextView t = findViewById(R.id.textCurrent);
 
                 if (e) {
-                    b.setText("Enable Call Blocking");
+                    b.setText("Tap to Enable Call Blocking");
                     t.setText("Call blocking is currently disabled");
-                    saveBool("enabled", false);
+                    Toast.makeText(MainActivity.getInstace(), "Allowing calls from any number", Toast.LENGTH_SHORT).show();
+                    saveBoolPref("enabled", false);
 
                     Log.d("SCB","set enabled = false");
 
 
                 } else {
-                    b.setText("Allow All Calls");
+                    b.setText("Tap to Allow All Calls");
                     t.setText("Call blocking is currently enabled");
-                    saveBool("enabled", true);
+                    Toast.makeText(MainActivity.getInstace(), "Allowing calls from contacts only", Toast.LENGTH_SHORT).show();
+                    saveBoolPref("enabled", true);
 
                     Log.d("SCB","set enabled = true");
 
@@ -80,10 +112,18 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case PERMISSION_REQUEST_READ_PHONE_STATE: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                boolean grantsOkay = true;
+                for (int i=0; i< grantResults.length;i++) {
+                    if (grantsOkay) {
+                        grantsOkay = grantResults[i] == PackageManager.PERMISSION_GRANTED;
+                    }
+                }
+                if (grantsOkay) {
                     Toast.makeText(this, "Permissions granted", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(this, "Permission(s) NOT granted.  App won't work.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Permission(s) NOT granted.  App won't work. Exiting", Toast.LENGTH_LONG).show();
+                    this.closeNow();
+
                 }
 
                 return;
@@ -91,15 +131,42 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void saveBool (String key, boolean val) {
+    private void saveBoolPref (String key, boolean val) {
         SharedPreferences settings = getSharedPreferences("SCB", MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean(key, val);
         editor.commit();
     }
-
-    private boolean getBool (String key) {
+    private boolean getBoolPref (String key) {
         SharedPreferences settings = getSharedPreferences("SCB", MODE_PRIVATE);
         return settings.getBoolean (key, true);
     }
+    private int getIntPref (String key) {
+        SharedPreferences settings = getSharedPreferences("SCB", MODE_PRIVATE);
+        return settings.getInt (key, 0);
+    }
+    private void saveIntPref (String key, int val) {
+        SharedPreferences settings = getSharedPreferences("SCB", MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt(key, val);
+        editor.commit();
+    }
+    private String getStringPref (String key) {
+        SharedPreferences settings = getSharedPreferences("SCB", MODE_PRIVATE);
+        return settings.getString (key, "");
+    }
+    private void saveStringPref (String key, String val) {
+        SharedPreferences settings = getSharedPreferences("SCB", MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(key, val);
+        editor.commit();
+    }
+    private void closeNow() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            finishAffinity();
+        } else {
+            finish();
+        }
+    }
+
 }

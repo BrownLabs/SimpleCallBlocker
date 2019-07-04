@@ -24,6 +24,8 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/textBlockedInfo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
@@ -31,24 +33,45 @@
         tools:text="..." />
 
     <TextView
+        android:id="@+id/textView2"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:text="This is a simple call blocker for phone calls (not SMS) from phone numbers not in your contact list.  There are no other options other than enabled or disabled.  Disable the blocker if you are expecting a call from a number not in your contact list.  This app works on Andorid 9.0+ (Pie) when most other call blockers have stopped working.\n\nThis app does not share your contact list, or any other data, with any remote service and there is no advertising.\n\nThe app will check calls whether the UI is running or not.  That is unless you &quot;force stop&quot; the app.  In that case, you'll need to open the Simple Call Blocker app to restart the call checking function.\n\nEnjoy."
-        app:layout_constraintBottom_toTopOf="@+id/textVersion"
+        android:layout_marginBottom="24dp"
+        android:fadeScrollbars="false"
+        android:isScrollContainer="true"
+        android:overScrollMode="always"
+        android:scrollbars="vertical"
+        android:text="This is a simple call blocker for phone calls (not SMS) that blocks phone numbers not in your contact list.  The only options are enabled or disabled.  Disable the blocker if you are expecting a call from a number not in your contact list.  This app works on Andorid 9.0+ (Pie) when most other call blockers have started blocking all calls.\n\nThis app was written and maintained by an American in the United States.  The App does not share your contact list, or any other data, with anyone nor any remote service.  No data leaves your phone from this app.  Plus there is no advertising.\n\nI'm providing this app with no strings attached because I'm fed up with the amount of spam phone calls I receive.  And while there are things the government and telcos are doing to &quot;improve&quot; the situation, I'm sure they will not block calls from the highest bidders.\n\nLastly, this app will check and block calls whether the UI is running or not.  That is unless you &quot;force stop&quot; the app.  In that case, you'll need to open the Simple Call Blocker app to restart the call checking function.\n\nEnjoy. \n\n\n"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonEnable" />
+        app:layout_constraintTop_toBottomOf="@+id/textBlockedInfo" />
 
     <TextView
         android:id="@+id/textVersion"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
-        android:text="Version 0.1"
+        android:layout_marginEnd="24dp"
+        android:text="Version 0.2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/textBlockedInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="Blocked Calls:"
+        app:layout_constraintBottom_toTopOf="@+id/textView2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonEnable" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

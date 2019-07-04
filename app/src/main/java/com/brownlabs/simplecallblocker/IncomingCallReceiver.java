@@ -11,6 +11,7 @@ import android.provider.BaseColumns;
 import android.provider.ContactsContract;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.internal.telephony.ITelephony;
@@ -19,11 +20,17 @@ import java.lang.reflect.Method;
 
 public class IncomingCallReceiver extends BroadcastReceiver {
 
+
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        if (!getBool("enabled", context)) {
+        if (!getBoolPref("enabled", context)) {
             return;
+        }
+        MainActivity mainActivity = null;
+
+        if(MainActivity.getInstace()!=null) {
+            mainActivity = MainActivity.getInstace();
         }
 
         ITelephony telephonyService;
@@ -63,9 +70,17 @@ public class IncomingCallReceiver extends BroadcastReceiver {
                         if (foundContact) {
                             Log.d("SCB", "Ringing");
                         } else {
+
                             telephonyService.endCall();
                             Log.d("SCB", "Contact not found. Call Blocked.");
                             Toast.makeText(context, "Contact not found. Call Blocked.", Toast.LENGTH_SHORT).show();
+                            int blockedCount = getIntPref("blockedCount", context);
+                            blockedCount++;
+                            saveIntPref("blockedCount", blockedCount, context);
+                            String blockedSinceDate = getStringPref("BlockedSinceDate", context);
+
+                            TextView tv = mainActivity.findViewById(R.id.textBlockedInfo);
+                            tv.setText(blockedCount +" calls blocked since "+blockedSinceDate);
 
                         }
 
@@ -110,8 +125,24 @@ public class IncomingCallReceiver extends BroadcastReceiver {
         return name;
     }
 
-    private boolean getBool (String key, Context ctx) {
+
+    private boolean getBoolPref (String key, Context ctx) {
         SharedPreferences settings = ctx.getSharedPreferences("SCB", ctx.MODE_PRIVATE);
         return settings.getBoolean (key, true);
     }
+    private int getIntPref (String key, Context ctx) {
+        SharedPreferences settings = ctx.getSharedPreferences("SCB", ctx.MODE_PRIVATE);
+        return settings.getInt (key, 0);
+    }
+    private void saveIntPref (String key, int val, Context ctx) {
+        SharedPreferences settings = ctx.getSharedPreferences("SCB", ctx.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt(key, val);
+        editor.commit();
+    }
+    private String getStringPref (String key, Context ctx) {
+        SharedPreferences settings = ctx.getSharedPreferences("SCB", ctx.MODE_PRIVATE);
+        return settings.getString (key, "");
+    }
+
 }
