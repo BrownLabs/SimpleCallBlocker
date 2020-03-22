@@ -62,10 +62,11 @@ public class IncomingCallReceiver extends BroadcastReceiver {
 
                 if (state.equalsIgnoreCase(TelephonyManager.EXTRA_STATE_RINGING)) {
                     try {
-                        Method m = tm.getClass().getDeclaredMethod("getITelephony");
 
-                        m.setAccessible(true);
-                        telephonyService = (ITelephony) m.invoke(tm);
+                        Class clazz = Class.forName(tm.getClass().getName());
+                        Method method = clazz.getDeclaredMethod("getITelephony");
+                        method.setAccessible(true);
+                        telephonyService = (ITelephony) method.invoke(tm);
 
                         if (foundContact) {
                             Log.d("SCB", "Ringing");
